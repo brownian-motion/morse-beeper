@@ -74,3 +74,12 @@ unrecognizedSymbol = [DOT, DOT, DASH, DASH, DOT, DOT] --same as '?'
 
 charToMorse :: Char -> [Morse.Symbol]
 charToMorse c = Maybe.fromMaybe unrecognizedSymbol (HashMap.lookup c mappings)
+
+wordToMorse :: [Char] -> [[Morse.Symbol]]
+wordToMorse word = map charToMorse word
+
+stringToMorse :: String -> [[[Morse.Symbol]]]
+stringToMorse sentence = map wordToMorse (map unpacked (words sentence))
+
+toMorse :: [Char] -> [[[Morse.Symbol]]]
+toMorse sentence = stringToMorse (packed sentence)
