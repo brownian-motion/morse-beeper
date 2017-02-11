@@ -1,8 +1,35 @@
 package com.brownian.morse;
 
+/**
+ * Defines the possible symbols used in Morse code, and how Latin characters are mapped to sequences of them.
+ */
 public class Morse{
-    public static enum Symbol { DOT, DASH, WORD_BOUNDARY_PAUSE, CHAR_BOUNDARY_PAUSE};
+    /**
+     * Defines the possible symbols for use in Morse code.
+     */
+    public enum Symbol {
+        DOT('.'), DASH('-'), WORD_BOUNDARY_PAUSE('/'), CHAR_BOUNDARY_PAUSE(' ');
 
+        private char writtenCharacter;
+
+        Symbol(char writtenCharacter){
+            this.writtenCharacter = writtenCharacter;
+        }
+
+        @Override
+        public String toString(){
+            return String.valueOf(writtenCharacter);
+        }
+    }
+
+    /**
+     * Defines the mapping between Latin characters and their Morse code equivalent.
+     * Any whitespace is considered a {@link Symbol#WORD_BOUNDARY_PAUSE word boundary}.
+     * Letters are translated standalone; that is, without respect to {@link Symbol#CHAR_BOUNDARY_PAUSE}.
+     * Any unknown characters are interpreted as '?'.
+     * @param letter A Latin character to convert to a series of {@link Symbol Morse symbols}.
+     * @return A series of {@link Symbol Morse symbols} that correspond to the given letter.
+     */
     public static Symbol[] toMorse(char letter){
         if(Character.isWhitespace(letter))
             return new Symbol[]{Symbol.WORD_BOUNDARY_PAUSE};
@@ -128,13 +155,5 @@ public class Morse{
             case '=':
                 return new Symbol[]{Symbol.DASH, Symbol.DOT, Symbol.DOT, Symbol.DOT, Symbol.DASH};
         }
-    }
-
-    public static Symbol[][] toMorseWords(String text){
-        Symbol[][] morseText = new Symbol[text.length()][];
-        for(int i = 0 ; i < text.length() ; i++){
-            morseText[i] = toMorse(text.charAt(i));
-        }
-        return morseText;
     }
 }
