@@ -1,14 +1,13 @@
 package com.brownian.morse;
 
-import java.io.File;
-import java.io.FileInputStream;
-import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.sound.midi.*;
 
 public class Main extends JFrame {
 
     private static final long serialVersionUID = 1L;
+
+    private static final int INSTRUMENT = 83;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -32,9 +31,14 @@ public class Main extends JFrame {
     }
 
     private void playStartupSound() {
-        Runnable soundPlayer = new MorsePlayer();
-        Thread soundPlayingThread = new Thread(soundPlayer);
-        soundPlayingThread.start();
+        try {
+            LatinReceiver latinReceiver = LatinReceiver.getReceiver();
+            latinReceiver.send("sos");
+        } catch (MidiUnavailableException e){
+            System.err.println("MIDI not available.");
+            e.printStackTrace(System.err);
+            endApp();
+        }
     }
 
     private void initGUI() {
