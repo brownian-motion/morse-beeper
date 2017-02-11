@@ -1,8 +1,12 @@
 import javax.sound.midi.*;
 
-public class MorsePlayer extends Runnable {
+public class MorsePlayer implements Runnable {
 
-  public static final int DOT_MILLIS = 300;
+  public static final int DOT_MILLIS = 300; //how long to hold a dot
+  public static final int DASH_MILLIS = 3 * DOT_MILLIS; //how long to hold a dash
+  public static final int SYMBOL_BREAK_MILLIS = DOT_MILLIS; //how long to wait between symbols
+  public static final int CHAR_BREAK_MILLIS = 3 * DOT_MILLIS; //how long to wait between characters
+  public static final int PAUSE_BREAK_MILLIS = 5 * DOT_MILLIS; //how long to wait when a pause character is received
 
   public void run() {
     try {
@@ -30,14 +34,24 @@ public class MorsePlayer extends Runnable {
 
 /**
  * Immediately plays the requested symbol.
- *
  */
-  public void play(Morse.Symbol symbol){
-    switch(symbol){
-      case Morse.Symbol.DOT:
-        //TODO
-      case Morse.Symbol.DASH:
-        //TODO
-    }
+  private void play(Morse.Symbol symbol) {
+      switch (symbol) {
+          case Morse.Symbol.DOT:
+              sendMessage(true);
+              Thread.sleep(DOT_MILLIS);
+              sendMessage(false);
+              Thread.sleep(DOT_MILLIS);
+          case Morse.Symbol.DASH:
+              //TODO
+      }
+  }
+
+  private void sendMessage(boolean isOn){
+      receiver.send(generateMessage(isOn),-1);
+  }
+
+  private static ShortMessage generateMessage(boolean isOn){
+      return new ShortMessage(ShortMessage.NOTE_ON, 0, INSTRUMENT, isOn?93:1);
   }
 }
