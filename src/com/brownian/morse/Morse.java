@@ -1,3 +1,5 @@
+package com.brownian.morse;
+
 public class Morse{
     public static enum Symbol { DOT, DASH, PAUSE };
 

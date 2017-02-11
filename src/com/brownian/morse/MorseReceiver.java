@@ -1,3 +1,5 @@
+package com.brownian.morse;
+
 /**
  *  Defines an object that can accept Morse symbols.
  */

@@ -1,3 +1,5 @@
+package com.brownian.morse;
+
 import javax.sound.midi.*;
 
 public class MorsePlayer implements Runnable {
