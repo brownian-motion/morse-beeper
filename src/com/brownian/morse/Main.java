@@ -7,8 +7,6 @@ public class Main extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int INSTRUMENT = 83;
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Main app = new Main();
