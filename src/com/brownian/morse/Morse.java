@@ -1,11 +1,11 @@
 package com.brownian.morse;
 
 public class Morse{
-    public static enum Symbol { DOT, DASH, PAUSE };
+    public static enum Symbol { DOT, DASH, WORD_BOUNDARY_PAUSE, CHAR_BOUNDARY_PAUSE};
 
     public static Symbol[] toMorse(char letter){
         if(Character.isWhitespace(letter))
-            return new Symbol[]{Symbol.PAUSE};
+            return new Symbol[]{Symbol.WORD_BOUNDARY_PAUSE};
 
         letter = Character.toUpperCase(letter);
         switch(letter){
@@ -130,10 +130,10 @@ public class Morse{
         }
     }
 
-    public static Symbol[][] toMorse(String text){
-        Symbol[][] morseText = new Symbol[word.length()][];
-        for(int i = 0 ; i < word.length() ; i++){
-            morseText[i] = toMorse(word.charAt(i));
+    public static Symbol[][] toMorseWords(String text){
+        Symbol[][] morseText = new Symbol[text.length()][];
+        for(int i = 0 ; i < text.length() ; i++){
+            morseText[i] = toMorse(text.charAt(i));
         }
         return morseText;
     }

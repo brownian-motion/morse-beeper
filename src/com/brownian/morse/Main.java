@@ -11,12 +11,10 @@ public class Main extends JFrame {
     private static final long serialVersionUID = 1L;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Main app = new Main();
-                app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                app.startApp();
-            }
+        SwingUtilities.invokeLater(() -> {
+            Main app = new Main();
+            app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            app.startApp();
         });
     }
 

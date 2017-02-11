@@ -1,5 +1,7 @@
 package com.brownian.morse;
 
+import java.util.stream.Stream;
+
 /**
  *  Defines an object that can accept Morse symbols.
  */
