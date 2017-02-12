@@ -26,7 +26,7 @@ public class MorseToMidiReceiver implements MorseReceiver {
      * The identifier of a MIDI instrument that stays on when turned on, without fading.
      * @see <a href="http://soundprogramming.net/file-formats/general-midi-instrument-list/">http://soundprogramming.net/file-formats/general-midi-instrument-list/</a>
      */
-    private static final int DEFAULT_INSTRUMENT = 83;
+    private static final int DEFAULT_INSTRUMENT = 0;
 
     private static final int DOT_MILLIS = 100; //how long to hold a dot
     private static final int DASH_MILLIS = 3 * DOT_MILLIS; //how long to hold a dash
