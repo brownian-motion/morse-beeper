@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  *
  * This class is not thread-safe; if receiving from multiple sources, symbols should be sent to it inside synchronized blocks.
  */
-public class BufferedMorseReceiver implements MorseReceiver {
+public class MorseToMidiReceiver implements MorseReceiver {
     private final Receiver midiReceiver;
     private BlockingQueue<Morse.Symbol> symbols;
 
@@ -39,7 +39,7 @@ public class BufferedMorseReceiver implements MorseReceiver {
      * These MIDI sounds are played as soon as Morse symbols are received.
      * @param midiReceiver the MIDI receiver for this object to control
      */
-    public BufferedMorseReceiver(Receiver midiReceiver){
+    public MorseToMidiReceiver(Receiver midiReceiver){
         this.midiReceiver = midiReceiver;
         this.symbols = new LinkedBlockingQueue<>();
 
@@ -50,7 +50,7 @@ public class BufferedMorseReceiver implements MorseReceiver {
             try {
                 //noinspection InfiniteLoopStatement
                 while(true)
-                    playImmediately(BufferedMorseReceiver.this.symbols.take());
+                    playImmediately(MorseToMidiReceiver.this.symbols.take());
             } catch (InterruptedException e) {
                 System.err.println("This should never happen:");
                 e.printStackTrace();
@@ -59,13 +59,13 @@ public class BufferedMorseReceiver implements MorseReceiver {
     }
 
     /**
-     * A factory method that generates a BufferedMorseReceiver connected to the default MIDI {@link Receiver}.
-     * @return A BufferedMorseReceiver that sends MIDI commands describing received Morse code to a MIDI receiver.
+     * A factory method that generates a MorseToMidiReceiver connected to the default MIDI {@link Receiver}.
+     * @return A MorseToMidiReceiver that sends MIDI commands describing received Morse code to a MIDI receiver.
      * @throws MidiUnavailableException if MIDI could not be loaded
      * @see MidiSystem#getReceiver()
      */
     @NotNull
-    public static BufferedMorseReceiver getReceiver() throws MidiUnavailableException{
+    public static MorseToMidiReceiver getReceiver() throws MidiUnavailableException{
         Receiver midiReceiver = MidiSystem.getReceiver();
         try {
             //initialize the sound. This is important, so that the instrument doesn't fade over time, but stays on until we turn it off
@@ -74,7 +74,7 @@ public class BufferedMorseReceiver implements MorseReceiver {
             System.err.println("Could not set up instrument");
             e.printStackTrace(System.err);
         }
-        return new BufferedMorseReceiver(midiReceiver);
+        return new MorseToMidiReceiver(midiReceiver);
     }
 
     /**
