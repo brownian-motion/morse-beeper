@@ -29,7 +29,7 @@ public class LatinReceiver {
      */
     @NotNull
     public static LatinReceiver getReceiver() throws MidiUnavailableException{
-        return new LatinReceiver(MorseToMidiReceiver.getReceiver());
+        return LatinReceiverAsync.getReceiver();
     }
 
     /**

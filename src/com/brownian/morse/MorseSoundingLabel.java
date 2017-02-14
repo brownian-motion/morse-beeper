@@ -1,6 +1,7 @@
 package com.brownian.morse;
 
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 import javax.swing.*;
 
@@ -9,9 +10,9 @@ import javax.swing.*;
  */
 class MorseSoundingLabel extends JLabel {
 
-    private LatinReceiver latinReceiver;
+    private LatinReceiverAsync latinReceiver;
 
-    MorseSoundingLabel(@NotNull LatinReceiver latinReceiver){
+    MorseSoundingLabel(@NotNull LatinReceiverAsync latinReceiver){
         super();
         this.latinReceiver = latinReceiver;
     }
@@ -21,5 +22,10 @@ class MorseSoundingLabel extends JLabel {
         super.setText(s);
         if(latinReceiver != null) //the parent sets the text before the receiver is initialized
             latinReceiver.send(s);
+    }
+
+    public void setText(String s, @Nullable OperationCompletedListener listener){
+        super.setText(s);
+        latinReceiver.send(s, listener);
     }
 }
