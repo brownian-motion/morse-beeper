@@ -1,8 +1,12 @@
-package com.brownian.morse;
+package com.brownian.morse.receivers;
 
+import com.brownian.morse.Morse;
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 import javax.sound.midi.*;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Stream;
@@ -13,9 +17,9 @@ import java.util.stream.Stream;
  *
  * This class is not thread-safe; if receiving from multiple sources, symbols should be sent to it inside synchronized blocks.
  */
-public class BufferedMorseReceiver implements MorseReceiver {
+public class MorseToMidiReceiverAsync implements MorseReceiverAsync {
     private final Receiver midiReceiver;
-    private BlockingQueue<Morse.Symbol> symbols;
+    private BlockingQueue<SymbolTuple> symbols;
 
     /**
      * The MIDI identifier of the pitch to play.
@@ -26,7 +30,7 @@ public class BufferedMorseReceiver implements MorseReceiver {
      * The identifier of a MIDI instrument that stays on when turned on, without fading.
      * @see <a href="http://soundprogramming.net/file-formats/general-midi-instrument-list/">http://soundprogramming.net/file-formats/general-midi-instrument-list/</a>
      */
-    private static final int DEFAULT_INSTRUMENT = 83;
+    private static final int DEFAULT_INSTRUMENT = 0;
 
     private static final int DOT_MILLIS = 100; //how long to hold a dot
     private static final int DASH_MILLIS = 3 * DOT_MILLIS; //how long to hold a dash
@@ -39,7 +43,7 @@ public class BufferedMorseReceiver implements MorseReceiver {
      * These MIDI sounds are played as soon as Morse symbols are received.
      * @param midiReceiver the MIDI receiver for this object to control
      */
-    public BufferedMorseReceiver(Receiver midiReceiver){
+    public MorseToMidiReceiverAsync(Receiver midiReceiver){
         this.midiReceiver = midiReceiver;
         this.symbols = new LinkedBlockingQueue<>();
 
@@ -49,8 +53,16 @@ public class BufferedMorseReceiver implements MorseReceiver {
         new Thread(() -> {
             try {
                 //noinspection InfiniteLoopStatement
-                while(true)
-                    playImmediately(BufferedMorseReceiver.this.symbols.take());
+                while(true) {
+                    SymbolTuple nextSymbolAndListener = MorseToMidiReceiverAsync.this.symbols.take();
+                    playImmediately(nextSymbolAndListener.symbol);
+                    //notify the listener asynchronously, so this object isn't affected by the callback's wait or errors
+                    if(nextSymbolAndListener.listener != null) {
+                        new Thread(() ->
+                                nextSymbolAndListener.listener.onOperationCompleted()
+                        ).start();
+                    }
+                }
             } catch (InterruptedException e) {
                 System.err.println("This should never happen:");
                 e.printStackTrace();
@@ -59,13 +71,13 @@ public class BufferedMorseReceiver implements MorseReceiver {
     }
 
     /**
-     * A factory method that generates a BufferedMorseReceiver connected to the default MIDI {@link Receiver}.
-     * @return A BufferedMorseReceiver that sends MIDI commands describing received Morse code to a MIDI receiver.
+     * A factory method that generates a MorseToMidiReceiverAsync connected to the default MIDI {@link Receiver}.
+     * @return A MorseToMidiReceiverAsync that sends MIDI commands describing received Morse code to a MIDI receiver.
      * @throws MidiUnavailableException if MIDI could not be loaded
      * @see MidiSystem#getReceiver()
      */
     @NotNull
-    public static BufferedMorseReceiver getReceiver() throws MidiUnavailableException{
+    public static MorseToMidiReceiverAsync getReceiver() throws MidiUnavailableException{
         Receiver midiReceiver = MidiSystem.getReceiver();
         try {
             //initialize the sound. This is important, so that the instrument doesn't fade over time, but stays on until we turn it off
@@ -74,7 +86,7 @@ public class BufferedMorseReceiver implements MorseReceiver {
             System.err.println("Could not set up instrument");
             e.printStackTrace(System.err);
         }
-        return new BufferedMorseReceiver(midiReceiver);
+        return new MorseToMidiReceiverAsync(midiReceiver);
     }
 
     /**
@@ -83,8 +95,21 @@ public class BufferedMorseReceiver implements MorseReceiver {
      */
     @Override
     public void sendSymbol(Morse.Symbol symbol) {
-        addToBuffer(symbol);
+        addToBuffer(new SymbolTuple(symbol));
     }
+
+    /**
+     * Sends a symbol of Morse code to this receiver, which is used to generate MIDI commands.
+     * When the symbol has been processed, the given listener is notified.
+     * @param symbol   A symbol of Morse code to receive.
+     * @param listener A listener to notify when this symbol has been processed
+     */
+    @Override
+    public void sendSymbol(Morse.Symbol symbol, @Nullable OperationCompletedListener listener) {
+        addToBuffer(new SymbolTuple(symbol, listener));
+    }
+
+
 
     /**
      * Sends an array of {@link Morse.Symbol Morse symbols} to this receiver, which are used to generate MIDI commands.
@@ -93,7 +118,17 @@ public class BufferedMorseReceiver implements MorseReceiver {
     @Override
     public void sendSymbols(Morse.Symbol[] symbols) {
         for(Morse.Symbol c : symbols)
-            addToBuffer(c);
+            addToBuffer(new SymbolTuple(c));
+    }
+
+    /**
+     * Sends an array of {@link Morse.Symbol Morse symbols} to this receiver, which are used to generate MIDI commands.
+     * @param symbols  an array of Morse symbols
+     * @param listener a listener to notify when the last symbol has been processed
+     */
+    @Override
+    public void sendSymbols(Morse.Symbol[] symbols, @Nullable OperationCompletedListener listener) {
+        sendSymbols(Arrays.stream(symbols), listener);
     }
 
     /**
@@ -102,17 +137,37 @@ public class BufferedMorseReceiver implements MorseReceiver {
      */
     @Override
     public void sendSymbols(Stream<Morse.Symbol> symbolStream) {
-        symbolStream.forEach(this::addToBuffer);
+        symbolStream.map(SymbolTuple::new).forEach(this::addToBuffer);
+    }
+
+    /**
+     * Sends a stream of {@link Morse.Symbol Morse symbols} to this receiver in sequence, which are used to generate MIDI commands.
+     * When the last symbol has been consumed, the listener (if given) is notified.
+     * @param symbolStream a stream of Morse symbols
+     * @param listener     a listener to notify when the last symbol has been processed
+     */
+    @Override
+    public void sendSymbols(Stream<Morse.Symbol> symbolStream, @Nullable OperationCompletedListener listener) {
+        /* We need to attach the listener to only the last entry.
+         * Therefore, add all of the ones EXCEPT the last with no listener,
+         * get the last, and then add that one WITH the listener.
+         */
+        // Thanks to http://stackoverflow.com/questions/21426843/get-last-element-of-stream-list-in-a-one-liner
+        Optional<Morse.Symbol> lastSymbolTuple = symbolStream.reduce((first, second)->{
+            addToBuffer(new SymbolTuple(first));
+            return second;
+        });
+        lastSymbolTuple.ifPresent(symbol -> addToBuffer(new SymbolTuple(symbol, listener)));
     }
 
 
     /**
-     * Adds the given symbol to the translation buffer.
-     * @param symbol the symbol to add to the buffer
+     * Adds the given symbol to the translation buffer, with its listener attached.
+     * @param symbolTuple the symbol (bound to a listener) to add to the buffer
      */
-    private void addToBuffer(Morse.Symbol symbol){
+    private void addToBuffer(SymbolTuple symbolTuple){
         try {
-            symbols.put(symbol);
+            symbols.put(symbolTuple);
         } catch (InterruptedException e) {
             System.err.println("This should never happen:");
             e.printStackTrace();
@@ -120,12 +175,18 @@ public class BufferedMorseReceiver implements MorseReceiver {
     }
 
     /**
-     * Immediately plays the requested symbol.
+     * Immediately plays the requested symbol, waiting synchronously until finished.
      *
      * This method requires that the MIDI Receiver in this object is not playing anything on channel 0,
      * and leaves it that way afterwards.
+     *
+     * If null is given, the symbol is skipped.
+     *
+     * @param symbol the symbol to play
      */
-    private void playImmediately(Morse.Symbol symbol) throws InterruptedException {
+    private void playImmediately(@Nullable Morse.Symbol symbol) throws InterruptedException {
+        if(symbol == null)
+            return; //avoid a NPE from the switch statement http://stackoverflow.com/questions/23056324/why-does-java-allow-null-value-to-be-assigned-to-an-enum
         switch (symbol) {
             case DOT:
                 sendMessage(true);
@@ -169,6 +230,23 @@ public class BufferedMorseReceiver implements MorseReceiver {
             System.err.println("This should never happen:");
             e.printStackTrace();
             return new ShortMessage();
+        }
+    }
+
+    /**
+     * Binds a symbol to a listener, which will be called when the symbol is processed.
+     */
+    private class SymbolTuple {
+        @NotNull  Morse.Symbol symbol;
+        @Nullable OperationCompletedListener listener;
+
+        SymbolTuple(@NotNull Morse.Symbol symbol, @NotNull OperationCompletedListener listener){
+            this.symbol = symbol;
+            this.listener = listener;
+        }
+
+        SymbolTuple(@NotNull Morse.Symbol symbol){
+            this(symbol, null);
         }
     }
 }

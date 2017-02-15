@@ -1,5 +1,6 @@
-package com.brownian.morse;
+package com.brownian.morse.receivers;
 
+import com.brownian.morse.Morse;
 import com.sun.istack.internal.NotNull;
 
 import javax.sound.midi.*;
@@ -29,7 +30,7 @@ public class LatinReceiver {
      */
     @NotNull
     public static LatinReceiver getReceiver() throws MidiUnavailableException{
-        return new LatinReceiver(BufferedMorseReceiver.getReceiver());
+        return LatinReceiverAsync.getReceiver();
     }
 
     /**
