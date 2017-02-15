@@ -32,6 +32,7 @@ public class RandomTextMorsePanel extends MorseSoundingLabel{
      * Creates a RandomTextMorsePanel that receives text from the given {@link RandomTextGenerator} and sends it
      * to be sounded out to the default {@link LatinReceiverAsync}.
      * @param randomTextGenerator the {@link RandomTextGenerator} to create text for this object.
+     * @throws MidiUnavailableException if MIDI cannot be used to generate sounds
      * @see LatinReceiverAsync#getReceiver()
      */
     public RandomTextMorsePanel(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException{

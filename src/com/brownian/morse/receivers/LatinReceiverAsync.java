@@ -40,8 +40,8 @@ public class LatinReceiverAsync extends LatinReceiver {
     /**
      * A factory method that generates a LatinReceiver connected to the default MIDI {@link Receiver}.
      * @return A LatinReceiver that accepts text, and forwards MIDI commands describing the Morse code to a MIDI receiver.
-     * @throws MidiUnavailableException if MIDI could not be loaded
-     * @see MidiSystem#getReceiver()
+     * @throws MidiUnavailableException if MIDI could not be used to generate sounds
+     * @see MorseToMidiReceiverAsync#getReceiver()
      */
     public static LatinReceiverAsync getReceiver() throws MidiUnavailableException{
         return new LatinReceiverAsync(MorseToMidiReceiverAsync.getReceiver());
