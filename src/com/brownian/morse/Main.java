@@ -1,10 +1,11 @@
 package com.brownian.morse;
 
-import com.sun.istack.internal.Nullable;
+import com.sun.istack.internal.NotNull;
 
 import javax.swing.*;
 import javax.sound.midi.*;
 import java.awt.*;
+import java.util.Random;
 
 public class Main extends JFrame {
 
@@ -17,9 +18,7 @@ public class Main extends JFrame {
     private static final int MAIN_MENU_BUTTON_WIDTH = 50;
     private static final int MAIN_MENU_BUTTON_HEIGHT = 20;
 
-    private volatile boolean isProducingRandomCharacters = false;
-
-    private LatinReceiverAsync latinReceiver;
+    private static final int SOUNDING_LABEL_FONT_SIZE = 36;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -30,13 +29,6 @@ public class Main extends JFrame {
     }
 
     public Main() {
-        try{
-            latinReceiver = LatinReceiverAsync.getReceiver();
-        } catch(MidiUnavailableException e){
-            System.err.println("MIDI not available.");
-            e.printStackTrace(System.err);
-            endApp();
-        }
         initGUI();
     }
 
@@ -45,44 +37,6 @@ public class Main extends JFrame {
      */
     private void startApp() {
         setVisible(true);
-    }
-
-    /**
-     * Periodically displays a random character in this frame's label.
-     * @param label the label whose text to modify
-     * @see #displayRandomCharacterIn(MorseSoundingLabel, OperationCompletedListener)
-     */
-    private void displayRandomCharactersIn(final MorseSoundingLabel label){
-        isProducingRandomCharacters = true;
-        displayRandomCharacterIn(label, new OperationCompletedListener() {
-            @Override
-            public void onOperationCompleted() {
-                if (isProducingRandomCharacters) {
-                    label.setText(" "); //wait between characters
-                    displayRandomCharacterIn(label, this); //re-use the same listener because it'll check every time
-                }
-            }
-        });
-    }
-
-    private void stopDisplayingRandomCharacters(){
-        isProducingRandomCharacters = false;
-    }
-
-    /**
-     * Displays a random character in the given label.
-     */
-    private void displayRandomCharacterIn(MorseSoundingLabel label, @Nullable OperationCompletedListener listener) {
-        char randomChar = generateRandomAlphaCharacter();
-        label.setText(String.valueOf(randomChar),listener);
-    }
-
-    /**
-     * Chooses a random letter between 'A' and 'Z'.
-     * @return a random letter between 'A' and 'Z'
-     */
-    private char generateRandomAlphaCharacter(){
-        return (char) ((int) (Math.random() * 26) + 'A');
     }
 
     /**
@@ -101,51 +55,76 @@ public class Main extends JFrame {
         setupMainMenu();
     }
 
+    /**
+     * Clears the app and displays the GUI for the main menu.
+     */
     private void setupMainMenu() {
         getContentPane().removeAll();
         JPanel mainMenuPanel = new JPanel();
+        mainMenuPanel.setLayout(new BorderLayout());
+
+        mainMenuPanel.add(new JLabel("Morse Code Practice App"),BorderLayout.PAGE_START);
+
+        final JLabel status = new JLabel();
+        status.setFont(new Font(Font.SERIF, Font.ITALIC,12));
+        mainMenuPanel.add(status, BorderLayout.PAGE_END);
+
         final JButton randomCharacterButton = new JButton("Listen to random characters");
-        randomCharacterButton.setAlignmentX(0.75f);
-        randomCharacterButton.setVerticalAlignment(SwingConstants.CENTER);
-        randomCharacterButton.addActionListener(actionEvent-> setupRandomAlphaCharacters());
-        mainMenuPanel.add(randomCharacterButton);
+        randomCharacterButton.addActionListener(actionEvent -> {
+            try {
+                setupRandomText(new RandomCharacterTextGenerator());
+            } catch (MidiUnavailableException e) {
+                e.printStackTrace();
+                status.setText("MIDI is unavailable on this device");
+                getContentPane().add(mainMenuPanel); //because it had been removed
+            }
+        });
+        mainMenuPanel.add(randomCharacterButton, BorderLayout.CENTER);
         getContentPane().add(mainMenuPanel);
         validate();
         repaint();
     }
 
-    private void setupRandomAlphaCharacters(){
+    /**
+     * Clears the GUI and displays a panel with a "Main Menu" button and a label that
+     * displays and sounds out random strings from the given {@link RandomTextGenerator}.
+     * @param randomTextGenerator a {@link RandomTextGenerator} to generate text in Latin characters for the panel
+     * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
+     */
+    private void setupRandomText(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException{
         getContentPane().removeAll();
 
-        JPanel randomAlphaCharactersPanel = new JPanel();
-        randomAlphaCharactersPanel.setLayout(new BorderLayout());
+        JPanel randomTextPanel = new JPanel();
+        randomTextPanel.setLayout(new BorderLayout());
 
-        MorseSoundingLabel soundingLabel = makeSoundingLabel(latinReceiver);
-        randomAlphaCharactersPanel.add(soundingLabel,BorderLayout.CENTER);
-        SwingUtilities.invokeLater(()->displayRandomCharactersIn(soundingLabel));
+        RandomTextMorsePanel soundingLabel = new RandomTextMorsePanel(randomTextGenerator);
+        soundingLabel.setFont(new Font(Font.SERIF,Font.PLAIN, SOUNDING_LABEL_FONT_SIZE));
+        soundingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        randomTextPanel.add(soundingLabel,BorderLayout.CENTER);
+        SwingUtilities.invokeLater(soundingLabel::play);
+
+        JPanel mainMenuButtonWrapper = new JPanel(); //necessary to let button shrink to fit contents
+        mainMenuButtonWrapper.setLayout(new BoxLayout(mainMenuButtonWrapper,BoxLayout.LINE_AXIS));
 
         JButton mainMenuButton = makeMainMenuButton();
-        mainMenuButton.addActionListener(actionEvent->stopDisplayingRandomCharacters());
-        randomAlphaCharactersPanel.add(mainMenuButton, BorderLayout.PAGE_START);
+        mainMenuButton.addActionListener(actionEvent -> soundingLabel.pause());
+        mainMenuButtonWrapper.add(mainMenuButton);
+        mainMenuButtonWrapper.add(Box.createHorizontalGlue());
 
-        getContentPane().add(randomAlphaCharactersPanel);
+        randomTextPanel.add(mainMenuButtonWrapper, BorderLayout.PAGE_START);
+
+
+        getContentPane().add(randomTextPanel);
         validate();
         repaint();
     }
 
-    private MorseSoundingLabel makeSoundingLabel(LatinReceiverAsync latinReceiver) {
-        MorseSoundingLabel soundingLabel = new MorseSoundingLabel(latinReceiver);
-        soundingLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        soundingLabel.setVerticalAlignment(SwingConstants.CENTER);
-        soundingLabel.setFont(new Font("Serif", Font.PLAIN, 36));
-        return soundingLabel;
-    }
-
+    /**
+     * Creates a consistent "Main Menu" button, that changes the GUI to the main menu when triggered
+     * @return a JButton that changes the GUI to the main menu when triggered
+     */
     private JButton makeMainMenuButton(){
         JButton mainMenuButton = new JButton("Back");
-        mainMenuButton.setAlignmentX(0.25f);
-        mainMenuButton.setAlignmentY(0.25f);
-//        mainMenuButton.setSize(new Dimension(MAIN_MENU_BUTTON_WIDTH, MAIN_MENU_BUTTON_HEIGHT));
         mainMenuButton.addActionListener(actionEvent->setupMainMenu());
         return mainMenuButton;
     }
