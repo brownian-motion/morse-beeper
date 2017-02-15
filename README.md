@@ -6,7 +6,7 @@ This program displays random characters while sounding them out in Morse code.
 # Downloads
 
 [Download the latest version here](https://github.com/paxromana96/morse-beeper/releases/).
-It's Java project, so it should work the same on any operating system with Java and MIDI installed.
+It's a Java program, so it should work the same on any operating system with Java and MIDI installed.
 
 # Dependencies
 
