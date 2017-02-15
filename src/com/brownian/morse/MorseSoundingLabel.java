@@ -10,11 +10,11 @@ import javax.swing.*;
 /**
  * A {@link JLabel} that will asynchronously sound out whatever texts it receives in Morse code.
  */
-class MorseSoundingLabel extends JLabel {
+public class MorseSoundingLabel extends JLabel {
 
     private LatinReceiverAsync latinReceiver;
 
-    MorseSoundingLabel(@NotNull LatinReceiverAsync latinReceiver){
+    public MorseSoundingLabel(@NotNull LatinReceiverAsync latinReceiver){
         super();
         this.latinReceiver = latinReceiver;
     }
