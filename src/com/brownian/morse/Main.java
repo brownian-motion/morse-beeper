@@ -1,7 +1,7 @@
 package com.brownian.morse;
 
 import com.brownian.morse.textgenerator.RandomCharacterTextGenerator;
-import com.brownian.morse.textgenerator.RandomTextGenerator;
+import com.brownian.morse.textgenerator.TextGenerator;
 import com.sun.istack.internal.NotNull;
 
 import javax.swing.*;
@@ -84,15 +84,15 @@ public class Main extends JFrame {
 
     /**
      * Clears the GUI and displays a panel with a "Main Menu" button and a label that
-     * displays and sounds out random strings from the given {@link RandomTextGenerator}.
-     * @param randomTextGenerator a {@link RandomTextGenerator} to generate text in Latin characters for the panel
+     * displays and sounds out random strings from the given {@link TextGenerator}.
+     * @param textGenerator a {@link TextGenerator} to generate text in Latin characters for the panel
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
-     * @see #makeRandomTextPanel(RandomTextGenerator)
+     * @see #makeRandomTextPanel(TextGenerator)
      */
-    private void setupRandomTextPanel(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException{
+    private void setupRandomTextPanel(@NotNull TextGenerator textGenerator) throws MidiUnavailableException{
         getContentPane().removeAll();
 
-        JPanel randomTextPanel = makeRandomTextPanel(randomTextGenerator);
+        JPanel randomTextPanel = makeRandomTextPanel(textGenerator);
 
         getContentPane().add(randomTextPanel);
         validate();
@@ -101,18 +101,18 @@ public class Main extends JFrame {
 
     /**
      * Creates a panel with a "Main Menu" button, and a label that displays and sounds out in Morse
-     * random strings from the given {@link RandomTextGenerator}.
-     * Used in {@link #setupRandomTextPanel(RandomTextGenerator)}
-     * @param randomTextGenerator a {@link RandomTextGenerator} to generate text in Latin characters for the panel
+     * random strings from the given {@link TextGenerator}.
+     * Used in {@link #setupRandomTextPanel(TextGenerator)}
+     * @param textGenerator a {@link TextGenerator} to generate text in Latin characters for the panel
      * @return a panel that displays and sounds out random text from the given generator
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
-     * @see #setupRandomTextPanel(RandomTextGenerator)
+     * @see #setupRandomTextPanel(TextGenerator)
      */
-    private JPanel makeRandomTextPanel(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException {
+    private JPanel makeRandomTextPanel(@NotNull TextGenerator textGenerator) throws MidiUnavailableException {
         JPanel randomTextPanel = new JPanel();
         randomTextPanel.setLayout(new BorderLayout());
 
-        RandomTextMorsePanel soundingLabel = new RandomTextMorsePanel(randomTextGenerator);
+        TextGeneratorMorsePanel soundingLabel = new TextGeneratorMorsePanel(textGenerator);
         soundingLabel.setFont(new Font(Font.SERIF,Font.PLAIN, SOUNDING_LABEL_FONT_SIZE));
         soundingLabel.setHorizontalAlignment(SwingConstants.CENTER);
         randomTextPanel.add(soundingLabel,BorderLayout.CENTER);

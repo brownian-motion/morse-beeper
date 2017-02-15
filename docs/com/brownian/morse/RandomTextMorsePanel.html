@@ -114,7 +114,7 @@ var activeTableTab = "activeTableTab";
 <li><a href="../../../com/brownian/morse/MorseSoundingLabel.html" title="class in com.brownian.morse">com.brownian.morse.MorseSoundingLabel</a></li>
 <li>
 <ul class="inheritance">
-<li>com.brownian.morse.RandomTextMorsePanel</li>
+<li>com.brownian.morse.TextGeneratorMorsePanel</li>
 </ul>
 </li>
 </ul>
@@ -142,7 +142,7 @@ extends <a href="../../../com/brownian/morse/MorseSoundingLabel.html" title="cla
 <div class="block">A <code>JLabel</code> that displays text from a <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a>, and sounds that text out in Morse using a <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers"><code>LatinReceiverAsync</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../serialized-form.html#com.brownian.morse.RandomTextMorsePanel">Serialized Form</a></dd>
+<dd><a href="../../../serialized-form.html#com.brownian.morse.TextGeneratorMorsePanel">Serialized Form</a></dd>
 </dl>
 </li>
 </ul>
@@ -241,13 +241,13 @@ extends <a href="../../../com/brownian/morse/MorseSoundingLabel.html" title="cla
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../com/brownian/morse/RandomTextMorsePanel.html#RandomTextMorsePanel-com.brownian.morse.textgenerator.RandomTextGenerator-">RandomTextMorsePanel</a></span>(<a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;randomTextGenerator)</code>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../com/brownian/morse/RandomTextMorsePanel.html#RandomTextMorsePanel-com.brownian.morse.textgenerator.TextGenerator-">RandomTextMorsePanel</a></span>(<a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;textGenerator)</code>
 <div class="block">Creates a RandomTextMorsePanel that receives text from the given <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> and sends it
  to be sounded out to the default <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers"><code>LatinReceiverAsync</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../com/brownian/morse/RandomTextMorsePanel.html#RandomTextMorsePanel-com.brownian.morse.textgenerator.RandomTextGenerator-com.brownian.morse.receivers.LatinReceiverAsync-">RandomTextMorsePanel</a></span>(<a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;randomTextGenerator,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../com/brownian/morse/RandomTextMorsePanel.html#RandomTextMorsePanel-com.brownian.morse.textgenerator.TextGenerator-com.brownian.morse.receivers.LatinReceiverAsync-">RandomTextMorsePanel</a></span>(<a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;textGenerator,
                     <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers">LatinReceiverAsync</a>&nbsp;latinReceiverAsync)</code>
 <div class="block">Creates a RandomTextMorsePanel that receives text from the given <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> and sends it
  to be sounded out to the given <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers"><code>LatinReceiverAsync</code></a>.</div>
@@ -344,7 +344,7 @@ extends <a href="../../../com/brownian/morse/MorseSoundingLabel.html" title="cla
 <li class="blockList">
 <h4>RandomTextMorsePanel</h4>
 <pre>public&nbsp;RandomTextMorsePanel(@NotNull
-                            <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;randomTextGenerator,
+                            <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;textGenerator,
                             @NotNull
                             <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers">LatinReceiverAsync</a>&nbsp;latinReceiverAsync)</pre>
 <div class="block">Creates a RandomTextMorsePanel that receives text from the given <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> and sends it
@@ -352,7 +352,7 @@ extends <a href="../../../com/brownian/morse/MorseSoundingLabel.html" title="cla
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>latinReceiverAsync</code> - the <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers"><code>LatinReceiverAsync</code></a> to sound out whatever text is generated and displayed.</dd>
-<dd><code>randomTextGenerator</code> - the <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> to create text for this object.</dd>
+<dd><code>textGenerator</code> - the <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> to create text for this object.</dd>
 </dl>
 </li>
 </ul>
@@ -363,13 +363,13 @@ extends <a href="../../../com/brownian/morse/MorseSoundingLabel.html" title="cla
 <li class="blockList">
 <h4>RandomTextMorsePanel</h4>
 <pre>public&nbsp;RandomTextMorsePanel(@NotNull
-                            <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;randomTextGenerator)
+                            <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator">RandomTextGenerator</a>&nbsp;textGenerator)
                      throws javax.sound.midi.MidiUnavailableException</pre>
 <div class="block">Creates a RandomTextMorsePanel that receives text from the given <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> and sends it
  to be sounded out to the default <a href="../../../com/brownian/morse/receivers/LatinReceiverAsync.html" title="class in com.brownian.morse.receivers"><code>LatinReceiverAsync</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>randomTextGenerator</code> - the <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> to create text for this object.</dd>
+<dd><code>textGenerator</code> - the <a href="../../../com/brownian/morse/textgenerator/RandomTextGenerator.html" title="interface in com.brownian.morse.textgenerator"><code>RandomTextGenerator</code></a> to create text for this object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>javax.sound.midi.MidiUnavailableException</code> - if MIDI cannot be used to generate sounds</dd>
 <dt><span class="seeLabel">See Also:</span></dt>

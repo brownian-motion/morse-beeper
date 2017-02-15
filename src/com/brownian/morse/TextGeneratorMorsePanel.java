@@ -2,41 +2,41 @@ package com.brownian.morse;
 
 import com.brownian.morse.receivers.LatinReceiverAsync;
 import com.brownian.morse.receivers.OperationCompletedListener;
-import com.brownian.morse.textgenerator.RandomTextGenerator;
+import com.brownian.morse.textgenerator.TextGenerator;
 import com.sun.istack.internal.NotNull;
 
 import javax.sound.midi.MidiUnavailableException;
 
 /**
- * A {@link javax.swing.JLabel} that displays text from a {@link RandomTextGenerator}, and sounds that text out in Morse using a {@link LatinReceiverAsync}.
+ * A {@link javax.swing.JLabel} that displays text from a {@link TextGenerator}, and sounds that text out in Morse using a {@link LatinReceiverAsync}.
  */
-public class RandomTextMorsePanel extends MorseSoundingLabel{
+public class TextGeneratorMorsePanel extends MorseSoundingLabel{
 
     private volatile boolean isProducingRandomCharacters = false;
-    private RandomTextGenerator randomTextGenerator;
+    private TextGenerator textGenerator;
 
     private static final int PAUSE_BETWEEN_WORDS_MILLIS = 1000;
 
     /**
-     * Creates a RandomTextMorsePanel that receives text from the given {@link RandomTextGenerator} and sends it
+     * Creates a TextGeneratorMorsePanel that receives text from the given {@link TextGenerator} and sends it
      * to be sounded out to the given {@link LatinReceiverAsync}.
      * @param latinReceiverAsync  the {@link LatinReceiverAsync} to sound out whatever text is generated and displayed.
-     * @param randomTextGenerator the {@link RandomTextGenerator} to create text for this object.
+     * @param textGenerator the {@link TextGenerator} to create text for this object.
      */
-    public RandomTextMorsePanel(@NotNull RandomTextGenerator randomTextGenerator, @NotNull LatinReceiverAsync latinReceiverAsync){
+    public TextGeneratorMorsePanel(@NotNull TextGenerator textGenerator, @NotNull LatinReceiverAsync latinReceiverAsync){
         super(latinReceiverAsync);
-        this.randomTextGenerator = randomTextGenerator;
+        this.textGenerator = textGenerator;
     }
 
     /**
-     * Creates a RandomTextMorsePanel that receives text from the given {@link RandomTextGenerator} and sends it
+     * Creates a TextGeneratorMorsePanel that receives text from the given {@link TextGenerator} and sends it
      * to be sounded out to the default {@link LatinReceiverAsync}.
-     * @param randomTextGenerator the {@link RandomTextGenerator} to create text for this object.
+     * @param textGenerator the {@link TextGenerator} to create text for this object.
      * @throws MidiUnavailableException if MIDI cannot be used to generate sounds
      * @see LatinReceiverAsync#getReceiver()
      */
-    public RandomTextMorsePanel(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException{
-        this(randomTextGenerator, LatinReceiverAsync.getReceiver());
+    public TextGeneratorMorsePanel(@NotNull TextGenerator textGenerator) throws MidiUnavailableException{
+        this(textGenerator, LatinReceiverAsync.getReceiver());
     }
 
     /**
@@ -47,7 +47,7 @@ public class RandomTextMorsePanel extends MorseSoundingLabel{
      */
     public synchronized void play(){
         if(!isProducingRandomCharacters) //don't start two threads at once
-            displayRandomText();
+            displayNewText();
     }
 
     /**
@@ -61,11 +61,11 @@ public class RandomTextMorsePanel extends MorseSoundingLabel{
     }
 
     /**
-     * Periodically displays a random string from the provided text generator
+     * Periodically displays a new string from the provided text generator
      */
-    private void displayRandomText(){
+    private void displayNewText(){
         isProducingRandomCharacters = true;
-        setText( randomTextGenerator.generateRandomText(), new OperationCompletedListener() {
+        setText( textGenerator.generateNewText(), new OperationCompletedListener() {
             @Override
             public void onOperationCompleted() {
                 if (isProducingRandomCharacters) { //check for pausing
@@ -74,7 +74,7 @@ public class RandomTextMorsePanel extends MorseSoundingLabel{
                     } catch (InterruptedException e) {
                         //nothing, we don't care
                     }
-                    setText(randomTextGenerator.generateRandomText(), this);
+                    setText(textGenerator.generateNewText(), this);
                 } //we can exit the method if paused, letting the thread close, because we only need a thread when playing
             }
         });
