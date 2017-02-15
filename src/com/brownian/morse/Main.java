@@ -1,11 +1,12 @@
 package com.brownian.morse;
 
+import com.brownian.morse.textgenerator.RandomCharacterTextGenerator;
+import com.brownian.morse.textgenerator.RandomTextGenerator;
 import com.sun.istack.internal.NotNull;
 
 import javax.swing.*;
 import javax.sound.midi.*;
 import java.awt.*;
-import java.util.Random;
 
 public class Main extends JFrame {
 

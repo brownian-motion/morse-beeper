@@ -1,12 +1,12 @@
-package com.brownian.morse;
+package com.brownian.morse.receivers;
 
+import com.brownian.morse.Morse;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
-import java.util.Arrays;
 
 /**
  * A {@link LatinReceiver} that supports asynchronous operations.

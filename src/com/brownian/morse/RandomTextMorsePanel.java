@@ -1,5 +1,8 @@
 package com.brownian.morse;
 
+import com.brownian.morse.receivers.LatinReceiverAsync;
+import com.brownian.morse.receivers.OperationCompletedListener;
+import com.brownian.morse.textgenerator.RandomTextGenerator;
 import com.sun.istack.internal.NotNull;
 
 import javax.sound.midi.MidiUnavailableException;

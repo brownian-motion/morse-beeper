@@ -1,4 +1,4 @@
-package com.brownian.morse;
+package com.brownian.morse.textgenerator;
 
 import com.sun.istack.internal.NotNull;
 

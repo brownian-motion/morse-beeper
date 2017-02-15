@@ -1,4 +1,4 @@
-package com.brownian.morse;
+package com.brownian.morse.receivers;
 
 /**
  * A listener used to notify when some operation is completed.

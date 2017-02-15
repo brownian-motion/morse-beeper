@@ -1,5 +1,6 @@
-package com.brownian.morse;
+package com.brownian.morse.receivers;
 
+import com.brownian.morse.Morse;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 

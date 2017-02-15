@@ -1,5 +1,7 @@
 package com.brownian.morse;
 
+import com.brownian.morse.receivers.LatinReceiverAsync;
+import com.brownian.morse.receivers.OperationCompletedListener;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
