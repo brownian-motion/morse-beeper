@@ -1,2 +1,5 @@
 .idea/
 *.class
+out/
+src/META-INF/
+production/
