@@ -1,12 +1,15 @@
 package com.brownian.morse;
 
-import com.brownian.morse.textgenerator.RandomCharacterTextGenerator;
-import com.brownian.morse.textgenerator.RandomTextGenerator;
+import com.brownian.morse.textgenerator.RandomCharacterSupplier;
+import com.brownian.morse.textgenerator.ShufflingSupplier;
 import com.sun.istack.internal.NotNull;
 
+import javax.sound.midi.MidiUnavailableException;
 import javax.swing.*;
-import javax.sound.midi.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Stream;
 
 public class Main extends JFrame {
 
@@ -16,6 +19,7 @@ public class Main extends JFrame {
     private static final int APP_HEIGHT = 200;
 
     private static final int SOUNDING_LABEL_FONT_SIZE = 36;
+    public static final String MOST_COMMON_WORDS_RESOURCE_PATH = "/EnglishMostCommon100.txt";
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -49,6 +53,8 @@ public class Main extends JFrame {
     private void initGUI() {
         setSize(APP_WIDTH, APP_HEIGHT);
 
+        setTitle("Morse Code Practice App");
+
         setupMainMenu();
     }
 
@@ -60,23 +66,42 @@ public class Main extends JFrame {
         JPanel mainMenuPanel = new JPanel();
         mainMenuPanel.setLayout(new BorderLayout());
 
-        mainMenuPanel.add(new JLabel("Morse Code Practice App"),BorderLayout.PAGE_START);
-
         final JLabel status = new JLabel();
         status.setFont(new Font(Font.SERIF, Font.ITALIC,12));
         mainMenuPanel.add(status, BorderLayout.PAGE_END);
 
+        final JPanel modeButtonsPanel = new JPanel(new GridLayout(0,1));
+
         final JButton randomCharacterButton = new JButton("Listen to random characters");
         randomCharacterButton.addActionListener(actionEvent -> {
             try {
-                setupRandomTextPanel(new RandomCharacterTextGenerator());
+                setupRandomTextPanel(Stream.generate(new RandomCharacterSupplier()));
             } catch (MidiUnavailableException e) {
                 e.printStackTrace();
                 status.setText("MIDI is unavailable on this device");
                 getContentPane().add(mainMenuPanel); //because it had been removed
             }
         });
-        mainMenuPanel.add(randomCharacterButton, BorderLayout.CENTER);
+        modeButtonsPanel.add(randomCharacterButton);
+
+        final JButton commonWordsButton = new JButton("Listen to common words");
+        commonWordsButton.addActionListener(actionEvent -> {
+            try {
+                BufferedReader resourceReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(MOST_COMMON_WORDS_RESOURCE_PATH)));
+                setupRandomTextPanel(Stream.generate(new ShufflingSupplier(resourceReader.lines().toArray(String[]::new))));
+            } catch (MidiUnavailableException e) {
+                e.printStackTrace();
+                status.setText("MIDI is unavailable on this device");
+                getContentPane().add(mainMenuPanel); //because it had been removed
+            } catch (NullPointerException e){
+                e.printStackTrace();
+                status.setText("Could not load resource "+MOST_COMMON_WORDS_RESOURCE_PATH);
+                getContentPane().add(mainMenuPanel); //because it had been removed
+            }
+        });
+        modeButtonsPanel.add(commonWordsButton);
+
+        mainMenuPanel.add(modeButtonsPanel, BorderLayout.CENTER);
         getContentPane().add(mainMenuPanel);
         validate();
         repaint();
@@ -84,15 +109,15 @@ public class Main extends JFrame {
 
     /**
      * Clears the GUI and displays a panel with a "Main Menu" button and a label that
-     * displays and sounds out random strings from the given {@link RandomTextGenerator}.
-     * @param randomTextGenerator a {@link RandomTextGenerator} to generate text in Latin characters for the panel
+     * displays and sounds out random strings from the given {@link Stream}.
+     * @param textGenerator a {@link Stream} used to supply text (in Latin characters) to the panel
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
-     * @see #makeRandomTextPanel(RandomTextGenerator)
+     * @see #makeRandomTextPanel(Stream)
      */
-    private void setupRandomTextPanel(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException{
+    private void setupRandomTextPanel(@NotNull Stream<String> textGenerator) throws MidiUnavailableException{
         getContentPane().removeAll();
 
-        JPanel randomTextPanel = makeRandomTextPanel(randomTextGenerator);
+        JPanel randomTextPanel = makeRandomTextPanel(textGenerator);
 
         getContentPane().add(randomTextPanel);
         validate();
@@ -101,22 +126,21 @@ public class Main extends JFrame {
 
     /**
      * Creates a panel with a "Main Menu" button, and a label that displays and sounds out in Morse
-     * random strings from the given {@link RandomTextGenerator}.
-     * Used in {@link #setupRandomTextPanel(RandomTextGenerator)}
-     * @param randomTextGenerator a {@link RandomTextGenerator} to generate text in Latin characters for the panel
+     * strings supplied by the given {@link Stream}.
+     * Used in {@link #setupRandomTextPanel(Stream)}
+     * @param textStream a {@link Stream} to generate text in Latin characters for the panel
      * @return a panel that displays and sounds out random text from the given generator
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
-     * @see #setupRandomTextPanel(RandomTextGenerator)
+     * @see #setupRandomTextPanel(Stream)
      */
-    private JPanel makeRandomTextPanel(@NotNull RandomTextGenerator randomTextGenerator) throws MidiUnavailableException {
+    private JPanel makeRandomTextPanel(@NotNull Stream<String> textStream) throws MidiUnavailableException {
         JPanel randomTextPanel = new JPanel();
         randomTextPanel.setLayout(new BorderLayout());
 
-        RandomTextMorsePanel soundingLabel = new RandomTextMorsePanel(randomTextGenerator);
+        TextStreamMorsePanel soundingLabel = new TextStreamMorsePanel(textStream);
         soundingLabel.setFont(new Font(Font.SERIF,Font.PLAIN, SOUNDING_LABEL_FONT_SIZE));
         soundingLabel.setHorizontalAlignment(SwingConstants.CENTER);
         randomTextPanel.add(soundingLabel,BorderLayout.CENTER);
-        SwingUtilities.invokeLater(soundingLabel::play);
 
         JPanel mainMenuButtonWrapper = new JPanel(); //necessary to let button shrink to fit contents
         mainMenuButtonWrapper.setLayout(new BoxLayout(mainMenuButtonWrapper,BoxLayout.LINE_AXIS));
@@ -125,8 +149,20 @@ public class Main extends JFrame {
         mainMenuButton.addActionListener(actionEvent -> soundingLabel.pause());
         mainMenuButtonWrapper.add(mainMenuButton);
         mainMenuButtonWrapper.add(Box.createHorizontalGlue());
-
         randomTextPanel.add(mainMenuButtonWrapper, BorderLayout.PAGE_START);
+
+        JButton playPauseButton = new JButton("Play");
+        playPauseButton.addActionListener(actionEvent->{
+            if(soundingLabel.isPlaying()) {
+                soundingLabel.pause();
+                playPauseButton.setText("Play");
+            } else {
+                soundingLabel.play();
+                playPauseButton.setText("Pause");
+            }
+        });
+        randomTextPanel.add(playPauseButton, BorderLayout.PAGE_END);
+
         return randomTextPanel;
     }
 
