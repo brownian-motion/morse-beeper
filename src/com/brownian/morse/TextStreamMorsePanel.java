@@ -66,6 +66,14 @@ public class TextStreamMorsePanel extends MorseSoundingLabel{
     }
 
     /**
+     * Returns whether or not this object is playing.
+     * @return true if this object is playing, and false if not
+     */
+    public synchronized boolean isPlaying(){
+        return isPlaying;
+    }
+
+    /**
      * Periodically displays a new string from the provided text generator
      */
     private void displayNewText(){
