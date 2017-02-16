@@ -4,6 +4,7 @@ import com.brownian.morse.receivers.LatinReceiverAsync;
 import com.sun.istack.internal.NotNull;
 
 import javax.sound.midi.MidiUnavailableException;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
 public class TextStreamMorsePanel extends MorseSoundingLabel{
 
     private volatile boolean isPlaying = false;
-    private Stream<String> textStream;
+    private Iterator<String> textIterator;
 
     private static final int PAUSE_BETWEEN_WORDS_MILLIS = 1000;
 
@@ -25,7 +26,7 @@ public class TextStreamMorsePanel extends MorseSoundingLabel{
      */
     public TextStreamMorsePanel(@NotNull Stream<String> textStream, @NotNull LatinReceiverAsync latinReceiverAsync){
         super(latinReceiverAsync);
-        this.textStream = textStream;
+        this.textIterator = textStream.iterator(); //this is necessary because we need to be able to get one string at a time
     }
 
     /**
@@ -40,8 +41,8 @@ public class TextStreamMorsePanel extends MorseSoundingLabel{
     }
 
     /**
-     * Starts consuming text from the underlying {@link Stream}, if not already doing that.
-     * If all of the text has been consumed, nothing happens.
+     * Starts displaying text from the underlying {@link Stream}, if not already doing that.
+     * If there is no more text in the stream, nothing happens.
      * This text is both displayed and sounded out.
      * This method is idempotent.
      * @see #pause()
@@ -68,18 +69,12 @@ public class TextStreamMorsePanel extends MorseSoundingLabel{
      * Periodically displays a new string from the provided text generator
      */
     private void displayNewText(){
-        Optional<String> nextElement = textStream.findFirst(); //do it in order (coherent message)
-        if(nextElement.isPresent())
-            nextElement.ifPresent(text -> this.setText(text, () -> {
-                if (isPlaying) { //check for pausing - might have been paused in a different thread
-                    try {
-                        Thread.sleep(PAUSE_BETWEEN_WORDS_MILLIS); //wait between strings. We can do this b/c the listener won't be in the main thread
-                    } catch (InterruptedException e) {
-                        //nothing, we don't care
-                    }
+        if(textIterator.hasNext())
+            this.setText(" "+textIterator.next()+" ", () -> { //wait between strings. We can do this b/c the listener won't be in the main thread
+                if (isPlaying)  //check for pausing - might have been paused in a different thread
                     displayNewText();
-                } //we can exit the method if paused, letting the thread close, because we only need a thread when playing
-            }));
+                //we can exit the method if paused, letting the thread close, because we only need a thread while playing
+            });
         else
             pause();
     }
