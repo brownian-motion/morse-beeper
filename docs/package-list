@@ -1,3 +1,4 @@
 com.brownian.morse
 com.brownian.morse.receivers
 com.brownian.morse.textgenerator
+com.brownian.morse.util

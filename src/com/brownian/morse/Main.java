@@ -2,6 +2,7 @@ package com.brownian.morse;
 
 import com.brownian.morse.textgenerator.RandomCharacterSupplier;
 import com.brownian.morse.textgenerator.ShufflingSupplier;
+import com.brownian.morse.util.SupplierIterator;
 import com.sun.istack.internal.NotNull;
 
 import javax.sound.midi.MidiUnavailableException;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 public class Main extends JFrame {
@@ -75,7 +77,7 @@ public class Main extends JFrame {
         final JButton randomCharacterButton = new JButton("Listen to random characters");
         randomCharacterButton.addActionListener(actionEvent -> {
             try {
-                setupRandomTextPanel(Stream.generate(new RandomCharacterSupplier()));
+                setupRandomTextPanel(new SupplierIterator<>(new RandomCharacterSupplier()));
             } catch (MidiUnavailableException e) {
                 e.printStackTrace();
                 status.setText("MIDI is unavailable on this device");
@@ -88,7 +90,7 @@ public class Main extends JFrame {
         commonWordsButton.addActionListener(actionEvent -> {
             try {
                 BufferedReader resourceReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(MOST_COMMON_WORDS_RESOURCE_PATH)));
-                setupRandomTextPanel(Stream.generate(new ShufflingSupplier(resourceReader.lines().toArray(String[]::new))));
+                setupRandomTextPanel(new SupplierIterator<>(new ShufflingSupplier(resourceReader.lines().toArray(String[]::new))));
             } catch (MidiUnavailableException e) {
                 e.printStackTrace();
                 status.setText("MIDI is unavailable on this device");
@@ -112,9 +114,9 @@ public class Main extends JFrame {
      * displays and sounds out random strings from the given {@link Stream}.
      * @param textGenerator a {@link Stream} used to supply text (in Latin characters) to the panel
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
-     * @see #makeRandomTextPanel(Stream)
+     * @see #makeRandomTextPanel(Iterator)
      */
-    private void setupRandomTextPanel(@NotNull Stream<String> textGenerator) throws MidiUnavailableException{
+    private void setupRandomTextPanel(@NotNull Iterator<String> textGenerator) throws MidiUnavailableException{
         getContentPane().removeAll();
 
         JPanel randomTextPanel = makeRandomTextPanel(textGenerator);
@@ -127,13 +129,13 @@ public class Main extends JFrame {
     /**
      * Creates a panel with a "Main Menu" button, and a label that displays and sounds out in Morse
      * strings supplied by the given {@link Stream}.
-     * Used in {@link #setupRandomTextPanel(Stream)}
+     * Used in {@link #setupRandomTextPanel(Iterator)}
      * @param textStream a {@link Stream} to generate text in Latin characters for the panel
      * @return a panel that displays and sounds out random text from the given generator
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
-     * @see #setupRandomTextPanel(Stream)
+     * @see #setupRandomTextPanel(Iterator)
      */
-    private JPanel makeRandomTextPanel(@NotNull Stream<String> textStream) throws MidiUnavailableException {
+    private JPanel makeRandomTextPanel(@NotNull Iterator<String> textStream) throws MidiUnavailableException {
         JPanel randomTextPanel = new JPanel();
         randomTextPanel.setLayout(new BorderLayout());
 
