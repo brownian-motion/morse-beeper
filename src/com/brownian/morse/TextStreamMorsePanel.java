@@ -5,7 +5,6 @@ import com.sun.istack.internal.NotNull;
 
 import javax.sound.midi.MidiUnavailableException;
 import java.util.Iterator;
-import java.util.stream.Stream;
 
 /**
  * A {@link javax.swing.JLabel} that displays text from an {@link Iterator}, and sounds that text out in Morse using a {@link LatinReceiverAsync}.
@@ -17,7 +16,7 @@ public class TextStreamMorsePanel extends MorseSoundingLabel{
     private Iterator<String> textIterator;
 
     /**
-     * Creates a {@link TextStreamMorsePanel} that receives text from the given {@link Stream} and sends it
+     * Creates a {@link TextStreamMorsePanel} that receives text from the given {@link Iterator} and sends it
      * to be sounded out to the given {@link LatinReceiverAsync}.
      * @param textStream the {@link Iterator} used to supply text for this object. May be finite or unbounded.
      * @param latinReceiverAsync  the {@link LatinReceiverAsync} to sound out whatever text is generated and displayed.
@@ -30,7 +29,7 @@ public class TextStreamMorsePanel extends MorseSoundingLabel{
     /**
      * Creates a {@link TextStreamMorsePanel} that receives text from the given {@link Iterator} and sends it
      * to be sounded out to the default {@link LatinReceiverAsync}.
-     * @param textStream the {@link Stream} used to supply text for this object. May be finite or unbounded.
+     * @param textStream the {@link Iterator} used to supply text for this object. May be finite or unbounded.
      * @throws MidiUnavailableException if MIDI cannot be used to generate sounds
      * @see LatinReceiverAsync#getReceiver()
      */

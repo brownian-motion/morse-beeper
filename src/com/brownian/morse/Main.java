@@ -11,7 +11,6 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Iterator;
-import java.util.stream.Stream;
 
 public class Main extends JFrame {
 
@@ -111,8 +110,8 @@ public class Main extends JFrame {
 
     /**
      * Clears the GUI and displays a panel with a "Main Menu" button and a label that
-     * displays and sounds out random strings from the given {@link Stream}.
-     * @param textGenerator a {@link Stream} used to supply text (in Latin characters) to the panel
+     * displays and sounds out random strings from the given {@link Iterator}.
+     * @param textGenerator an {@link Iterator} used to supply text (in Latin characters) to the panel
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
      * @see #makeRandomTextPanel(Iterator)
      */
@@ -128,9 +127,9 @@ public class Main extends JFrame {
 
     /**
      * Creates a panel with a "Main Menu" button, and a label that displays and sounds out in Morse
-     * strings supplied by the given {@link Stream}.
+     * strings supplied by the given {@link Iterator}.
      * Used in {@link #setupRandomTextPanel(Iterator)}
-     * @param textStream a {@link Stream} to generate text in Latin characters for the panel
+     * @param textStream an {@link Iterator} to supply text in Latin characters for the panel
      * @return a panel that displays and sounds out random text from the given generator
      * @throws MidiUnavailableException if MIDI cannot be used to sound out letters in Morse Code
      * @see #setupRandomTextPanel(Iterator)
