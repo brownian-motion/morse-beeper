@@ -10,7 +10,7 @@ public class Morse{
     public enum Symbol {
         DOT('.'), DASH('-'), WORD_BOUNDARY_PAUSE('/'), CHAR_BOUNDARY_PAUSE(' ');
 
-        private char writtenCharacter;
+        private final char writtenCharacter;
 
         Symbol(char writtenCharacter){
             this.writtenCharacter = writtenCharacter;

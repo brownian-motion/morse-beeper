@@ -25,6 +25,7 @@ public class Main extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Main app = new Main();
+            //noinspection MagicConstant
             app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             app.startApp();
         });

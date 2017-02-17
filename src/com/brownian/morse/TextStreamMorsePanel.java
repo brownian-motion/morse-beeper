@@ -13,7 +13,7 @@ import java.util.Iterator;
 public class TextStreamMorsePanel extends MorseSoundingLabel{
 
     private volatile boolean isPlaying = false;
-    private Iterator<String> textIterator;
+    private final Iterator<String> textIterator;
 
     /**
      * Creates a {@link TextStreamMorsePanel} that receives text from the given {@link Iterator} and sends it

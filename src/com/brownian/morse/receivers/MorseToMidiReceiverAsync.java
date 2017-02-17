@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  */
 public class MorseToMidiReceiverAsync implements MorseReceiverAsync {
     private final Receiver midiReceiver;
-    private BlockingQueue<SymbolTuple> symbols;
+    private final BlockingQueue<SymbolTuple> symbols;
 
     /**
      * The MIDI identifier of the pitch to play.
@@ -47,21 +47,18 @@ public class MorseToMidiReceiverAsync implements MorseReceiverAsync {
         this.midiReceiver = midiReceiver;
         this.symbols = new LinkedBlockingQueue<>();
 
-        /**
-         * Starts up a thread that plays symbols as soon as they are available, and waiting when they aren't.
+        /*
+          Starts up a thread that plays symbols as soon as they are available, and waiting when they aren't.
          */
-        new Thread(() -> {
+        new Thread(() -> { //TODO: ensure this thread is cleaned up when this object is garbage collected
             try {
                 //noinspection InfiniteLoopStatement
-                while(true) {
-                    SymbolTuple nextSymbolAndListener = MorseToMidiReceiverAsync.this.symbols.take();
+                while(true) { //we can do an infinite loop because this thread sleeps when waiting for another item
+                    SymbolTuple nextSymbolAndListener = MorseToMidiReceiverAsync.this.symbols.take(); //waits until data is ready, preventing the infinite loop problem
                     playImmediately(nextSymbolAndListener.symbol);
                     //notify the listener asynchronously, so this object isn't affected by the callback's wait or errors
-                    if(nextSymbolAndListener.listener != null) {
-                        new Thread(() ->
-                                nextSymbolAndListener.listener.onOperationCompleted()
-                        ).start();
-                    }
+                    if(nextSymbolAndListener.listener != null)
+                        new Thread(nextSymbolAndListener.listener::onOperationCompleted).start();
                 }
             } catch (InterruptedException e) {
                 System.err.println("This should never happen:");
@@ -237,8 +234,10 @@ public class MorseToMidiReceiverAsync implements MorseReceiverAsync {
      * Binds a symbol to a listener, which will be called when the symbol is processed.
      */
     private class SymbolTuple {
-        @NotNull  Morse.Symbol symbol;
-        @Nullable OperationCompletedListener listener;
+        @NotNull
+        final Morse.Symbol symbol;
+        @Nullable
+        final OperationCompletedListener listener;
 
         SymbolTuple(@NotNull Morse.Symbol symbol, @NotNull OperationCompletedListener listener){
             this.symbol = symbol;

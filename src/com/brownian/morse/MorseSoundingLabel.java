@@ -12,7 +12,7 @@ import javax.swing.*;
  */
 public class MorseSoundingLabel extends JLabel {
 
-    private LatinReceiverAsync latinReceiver;
+    private final LatinReceiverAsync latinReceiver;
 
     public MorseSoundingLabel(@NotNull LatinReceiverAsync latinReceiver){
         super();

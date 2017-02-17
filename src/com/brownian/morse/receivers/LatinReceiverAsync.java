@@ -4,7 +4,6 @@ import com.brownian.morse.Morse;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
-import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 
@@ -16,7 +15,7 @@ import javax.sound.midi.Receiver;
  * Calling parent send() methods is equivalent to providing null for a listener.
  */
 public class LatinReceiverAsync extends LatinReceiver {
-    private MorseReceiverAsync morseReceiverAsync;
+    private final MorseReceiverAsync morseReceiverAsync;
 
     public LatinReceiverAsync(MorseReceiverAsync morseReceiverAsync){
         super(morseReceiverAsync);
